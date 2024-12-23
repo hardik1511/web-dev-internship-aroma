@@ -50,9 +50,4 @@ Feel free to fork this repository and contribute to these projects by opening pu
 
 ---
 
-## License
-This repository is open-source and available under the [MIT License](LICENSE).
-
----
-
 For any queries or support, please reach out to [hardikj1511@gmail.com].
