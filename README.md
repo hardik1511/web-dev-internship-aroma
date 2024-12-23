@@ -55,4 +55,4 @@ This repository is open-source and available under the [MIT License](LICENSE).
 
 ---
 
-For any queries or support, please reach out to [your-email@example.com].
+For any queries or support, please reach out to [hardikj1511@gmail.com].
