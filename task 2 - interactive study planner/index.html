@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Study Planner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(120deg, #1a1a2e, #16213e, #0f3460);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(90deg, #ff6f61, #de4463);
+            color: white;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .planner {
+            margin: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+        }
+        .planner h2 {
+            margin-top: 0;
+            color: #f3f4f6;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .task:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        .task button {
+            background-color: #f05454;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .task button:hover {
+            background-color: #ff3f3f;
+            transform: translateY(-2px);
+        }
+        .add-task {
+            display: flex;
+            margin-top: 20px;
+        }
+        .add-task input {
+            flex: 1;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #64748b;
+            border-radius: 12px;
+            margin-right: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            backdrop-filter: blur(5px);
+        }
+        .add-task input::placeholder {
+            color: #94a3b8;
+        }
+        .add-task button {
+            background: linear-gradient(90deg, #06b6d4, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .add-task button:hover {
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            transform: translateY(-2px);
+        }
+        .task-date {
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+        .done {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Interactive Study Planner</h1>
+    </header>
+
+    <div class="planner">
+        <h2>Task List</h2>
+        <div id="task-list"></div>
+
+        <div class="add-task">
+            <input type="text" id="new-task" placeholder="Add a new task">
+            <input type="datetime-local" id="task-time">
+            <button onclick="addTask()">Add Task</button>
+        </div>
+    </div>
+
+    <script>
+        const taskList = document.getElementById('task-list');
+
+        function addTask() {
+            const taskInput = document.getElementById('new-task');
+            const taskTimeInput = document.getElementById('task-time');
+            const taskText = taskInput.value.trim();
+            const taskTime = taskTimeInput.value;
+
+            if (taskText === '' || taskTime === '') {
+                alert('Task and time cannot be empty!');
+                return;
+            }
+
+            const taskDateTime = new Date(taskTime);
+            const currentDateTime = new Date();
+
+            if (taskDateTime < currentDateTime) {
+                alert('Task date and time cannot be in the past!');
+                return;
+            }
+
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task';
+
+            const taskLabel = document.createElement('span');
+            taskLabel.textContent = taskText;
+            taskLabel.style.flex = '1';
+
+            const taskDate = document.createElement('span');
+            taskDate.textContent = `Due: ${taskDateTime.toLocaleString()}`;
+            taskDate.className = 'task-date';
+
+            const doneButton = document.createElement('button');
+            doneButton.textContent = 'Done';
+            doneButton.onclick = () => {
+                taskLabel.classList.toggle('done');
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = () => {
+                taskDiv.style.transition = 'opacity 0.3s, transform 0.3s';
+                taskDiv.style.opacity = '0';
+                taskDiv.style.transform = 'translateX(-50px)';
+                setTimeout(() => taskList.removeChild(taskDiv), 300);
+            };
+
+            taskDiv.appendChild(taskLabel);
+            taskDiv.appendChild(taskDate);
+            taskDiv.appendChild(doneButton);
+            taskDiv.appendChild(deleteButton);
+            taskList.appendChild(taskDiv);
+
+            taskInput.value = '';
+            taskTimeInput.value = '';
+        }
+    </script>
+</body>
+</html>
