@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background-color: #e8f0fe;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .tab.active {
+            background-color: #1a73e8;
+            color: white;
+        }
+
+        .section {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #444;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f0fe;
+            border-radius: 4px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            height: 300px;
+        }
+
+        #weightChart {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Health Tracker</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showSection('profile')">Profile</button>
+            <button class="tab" onclick="showSection('track')">Track</button>
+            <button class="tab" onclick="showSection('history')">History</button>
+            <button class="tab" onclick="showSection('recommendations')">Recommendations</button>
+        </div>
+
+        <div id="profile" class="section active">
+            <div class="input-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" min="0" max="120">
+            </div>
+            <div class="input-group">
+                <label for="gender">Gender:</label>
+                <select id="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="height">Height (cm):</label>
+                <input type="number" id="height" min="0" max="300">
+            </div>
+            <div class="input-group">
+                <label for="targetWeight">Target Weight (kg):</label>
+                <input type="number" id="targetWeight" min="0" max="500">
+            </div>
+            <div class="input-group">
+                <label for="activityLevel">Activity Level:</label>
+                <select id="activityLevel">
+                    <option value="sedentary">Sedentary</option>
+                    <option value="light">Lightly Active</option>
+                    <option value="moderate">Moderately Active</option>
+                    <option value="very">Very Active</option>
+                </select>
+            </div>
+            <button onclick="saveProfile()">Save Profile</button>
+        </div>
+
+        <div id="track" class="section">
+            <div class="input-group">
+                <label for="currentWeight">Current Weight (kg):</label>
+                <input type="number" id="currentWeight" min="0" max="500">
+            </div>
+            <div class="input-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date">
+            </div>
+            <div class="input-group">
+                <label for="exercise">Exercise Done:</label>
+                <select id="exercise">
+                    <option value="none">None</option>
+                    <option value="light">Light Exercise</option>
+                    <option value="moderate">Moderate Exercise</option>
+                    <option value="intense">Intense Exercise</option>
+                </select>
+            </div>
+            <button onclick="trackProgress()">Save Progress</button>
+        </div>
+
+        <div id="history" class="section">
+            <div class="chart-container">
+                <canvas id="weightChart"></canvas>
+            </div>
+            <div id="historyList"></div>
+        </div>
+
+        <div id="recommendations" class="section">
+            <div id="dietRecommendations" class="results"></div>
+            <div id="exerciseRecommendations" class="results"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+        // Initialize localStorage if needed
+        if (!localStorage.getItem('healthProfile')) {
+            localStorage.setItem('healthProfile', JSON.stringify({}));
+        }
+        if (!localStorage.getItem('healthHistory')) {
+            localStorage.setItem('healthHistory', JSON.stringify([]));
+        }
+
+        // Show selected section
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (sectionId === 'history') {
+                updateHistoryChart();
+            } else if (sectionId === 'recommendations') {
+                updateRecommendations();
+            }
+        }
+
+        // Save profile data
+        function saveProfile() {
+            const profile = {
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                height: document.getElementById('height').value,
+                targetWeight: document.getElementById('targetWeight').value,
+                activityLevel: document.getElementById('activityLevel').value
+            };
+            localStorage.setItem('healthProfile', JSON.stringify(profile));
+            alert('Profile saved successfully!');
+            updateRecommendations();
+        }
+
+        // Track daily progress
+        function trackProgress() {
+            const progress = {
+                weight: document.getElementById('currentWeight').value,
+                date: document.getElementById('date').value,
+                exercise: document.getElementById('exercise').value
+            };
+            
+            const history = JSON.parse(localStorage.getItem('healthHistory'));
+            history.push(progress);
+            localStorage.setItem('healthHistory', JSON.stringify(history));
+            
+            alert('Progress tracked successfully!');
+            updateHistoryChart();
+            updateRecommendations();
+        }
+
+        // Update history chart
+        function updateHistoryChart() {
+            const history = JSON.parse(localStorage.getItem('healthHistory'));
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.weightChart) {
+                window.weightChart.destroy();
+            }
+            
+            window.weightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: history.map(item => item.date),
+                    datasets: [{
+                        label: 'Weight (kg)',
+                        data: history.map(item => item.weight),
+                        borderColor: '#1a73e8',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Update history list
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    Date: ${item.date}<br>
+                    Weight: ${item.weight} kg<br>
+                    Exercise: ${item.exercise}
+                </div>
+            `).join('');
+        }
+
+        // Generate recommendations
+        function updateRecommendations() {
+            const profile = JSON.parse(localStorage.getItem('healthProfile'));
+            const history = JSON.parse(localStorage.getItem('healthHistory'));
+            const currentWeight = history.length > 0 ? history[history.length - 1].weight : 0;
+
+            const dietRecommendations = document.getElementById('dietRecommendations');
+            const exerciseRecommendations = document.getElementById('exerciseRecommendations');
+
+            // Calculate BMR using Harris-Benedict equation
+            let bmr = 0;
+            if (profile.gender === 'male') {
+                bmr = 88.362 + (13.397 * currentWeight) + (4.799 * profile.height) - (5.677 * profile.age);
+            } else {
+                bmr = 447.593 + (9.247 * currentWeight) + (3.098 * profile.height) - (4.330 * profile.age);
+            }
+
+            // Adjust calories based on activity level
+            const activityMultipliers = {
+                sedentary: 1.2,
+                light: 1.375,
+                moderate: 1.55,
+                very: 1.725
+            };
+            const tdee = bmr * activityMultipliers[profile.activityLevel];
+
+            // Generate recommendations
+            let dietHtml = '<h3>Diet Recommendations</h3>';
+            let exerciseHtml = '<h3>Exercise Recommendations</h3>';
+
+            if (currentWeight > profile.targetWeight) {
+                // Weight loss recommendations
+                dietHtml += `
+                    <p>Target daily calories: ${Math.round(tdee - 500)} calories</p>
+                    <p>Recommended diet:</p>
+                    <ul>
+                        <li>Increase protein intake (1.6-2.2g per kg of body weight)</li>
+                        <li>Focus on whole foods and vegetables</li>
+                        <li>Limit processed foods and sugary drinks</li>
+                        <li>Stay hydrated (2-3 liters of water daily)</li>
+                    </ul>
+                `;
+
+                exerciseHtml += `
+                    <p>Recommended weekly exercise:</p>
+                    <ul>
+                        <li>150 minutes of moderate cardio or 75 minutes of intense cardio</li>
+                        <li>3-4 strength training sessions</li>
+                        <li>Daily walking (10,000 steps target)</li>
+                    </ul>
+                `;
+            } else if (currentWeight < profile.targetWeight) {
+                // Weight gain recommendations
+                dietHtml += `
+                    <p>Target daily calories: ${Math.round(tdee + 500)} calories</p>
+                    <p>Recommended diet:</p>
+                    <ul>
+                        <li>Increase healthy calorie intake with nuts, avocados, olive oil</li>
+                        <li>Consume protein-rich foods</li>
+                        <li>Include complex carbohydrates</li>
+                        <li>Consider healthy weight-gain smoothies</li>
+                    </ul>
+                `;
+
+                exerciseHtml += `
+                    <p>Recommended weekly exercise:</p>
+                    <ul>
+                        <li>3-4 strength training sessions focusing on compound exercises</li>
+                        <li>Moderate cardio for heart health (30 minutes, 3 times per week)</li>
+                        <li>Focus on progressive overload in workouts</li>
+                    </ul>
+                `;
+            } else {
+                // Maintenance recommendations
+                dietHtml += `
+                    <p>Target daily calories: ${Math.round(tdee)} calories</p>
+                    <p>Recommended diet:</p>
+                    <ul>
+                        <li>Maintain balanced macronutrient intake</li>
+                        <li>Focus on whole foods</li>
+                        <li>Regular meal timing</li>
+                        <li>Stay hydrated</li>
+                    </ul>
+                `;
+
+                exerciseHtml += `
+                    <p>Recommended weekly exercise:</p>
+                    <ul>
+                        <li>Mix of cardio and strength training</li>
+                        <li>2-3 strength training sessions</li>
+                        <li>150 minutes of moderate activity</li>
+                        <li>Regular stretching and mobility work</li>
+                    </ul>
+                `;
+            }
+
+            dietRecommendations.innerHTML = dietHtml;
+            exerciseRecommendations.innerHTML = exerciseHtml;
+        }
+
+        // Load profile data if exists
+        const profile = JSON.parse(localStorage.getItem('healthProfile'));
+        if (profile) {
+            document.getElementById('age').value = profile.age || '';
+            document.getElementById('gender').value = profile.gender || 'male';
+            document.getElementById('height').value = profile.height || '';
+            document.getElementById('targetWeight').value = profile.targetWeight || '';
+            document.getElementById('activityLevel').value = profile.activityLevel || 'sedentary';
+        }
+
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
+    </script>
+</body>
+</html>
