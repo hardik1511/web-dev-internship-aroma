@@ -45,6 +45,47 @@ This project is an interactive study planner web app designed to help users orga
 
 ---
 
+## Project 3: Online Auction Platform
+**Folder:** `OnlineAuction`
+
+### Overview
+This project is a dynamic and user-friendly online auction platform, allowing users to create, browse, and bid on auctions. It features user authentication, auction management, and real-time bid updates.
+
+### Features
+- User Authentication: Register, login, and logout functionalities.
+- Create Auctions: Sellers can list items with details such as title, description, starting price, and end time.
+- Bid System: Buyers can place bids higher than the current price until the auction ends.
+- Responsive Design: Supports multiple devices with a clean and interactive layout.
+
+### How to Use
+1. Navigate to the `OnlineAuction` folder.
+2. Open `index.html` in any modern web browser.
+3. Register or log in to interact with auctions.
+4. Use the interface to create or bid on auctions.
+
+---
+
+## Project 4: Health Tracker
+**Folder:** `HealthTracker`
+
+### Overview
+This project is a comprehensive health tracker designed to monitor weight, track fitness progress, and provide personalized diet and exercise recommendations.
+
+### Features
+- Profile Management: Set and save details like age, gender, height, target weight, and activity level.
+- Progress Tracking: Record daily weight and exercise activities.
+- Visual Insights: Interactive charts for weight history.
+- Recommendations: Personalized diet and exercise suggestions based on user goals.
+- Responsive Design: Optimized for various devices.
+
+### How to Use
+1. Navigate to the `HealthTracker` folder.
+2. Open `index.html` in any modern web browser.
+3. Set up your profile and track daily progress.
+4. View history and receive recommendations in the respective tabs.
+
+---
+
 ## Contribution
 Feel free to fork this repository and contribute to these projects by opening pull requests. Suggestions and improvements are always welcome!
 
